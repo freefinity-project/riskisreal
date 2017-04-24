@@ -27,7 +27,7 @@ def cleanCSV():
             del newline[1]
             # print newline
             if newline[1] != '':
-                cleanData.append(newline)
+                cleanData.append(newline[0:55])
 
     for i in cleanData:
         print i
@@ -35,9 +35,18 @@ def cleanCSV():
 
 # plt.plot(cleanData)
 # plt.show()
+cleanCSV()
+
 
 for country_row in cleanData:
     country_name = country_row[0]
     ts_vals = numpy.array(country_row[1:len(country_row)])
+    print ts_vals
     scaler = MinMaxScaler(feature_range=(0, 1))
-    dataset = scaler.fit_transform(dataset)
+    dataset = scaler.fit_transform(ts_vals)
+
+    #split into train and test
+    train_size = int(len(dataset) * 0.75)
+    test_size = len(dataset) - train_size
+    train, test = dataset[0:train_size, :], dataset[train_size:len(dataset), :]
+    print(len(train), len(test))
