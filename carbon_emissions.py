@@ -81,7 +81,7 @@ for country_row in cleanData:
     model.add(LSTM(4, input_shape=(1, look_back)))
     model.add(Dense(1))
     model.compile(loss='mean_squared_error', optimizer='adam')
-    model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
+    model.fit(trainX, trainY, epochs=50, batch_size=1, verbose=2)
 
     trainPredict = model.predict(trainX)
     testPredict = model.predict(testX)
@@ -96,13 +96,22 @@ for country_row in cleanData:
     testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:, 0]))
     print('Test Score: %.2f RMSE' % (testScore))
 
-    trainPredictPlot = numpy.empty_like(dataset)
+    ndataset = []
+    for i in range(0, len(dataset)):
+        ndataset.append([i, dataset[i]])
+
+    ndataset = numpy.array(ndataset)
+    print ndataset.shape
+    # print trainPredict
+    trainPredictPlot = numpy.empty_like(ndataset)
     trainPredictPlot[:, :] = numpy.nan
     trainPredictPlot[look_back:len(trainPredict) + look_back, :] = trainPredict
     # shift test predictions for plotting
-    testPredictPlot = numpy.empty_like(dataset)
+    testPredictPlot = numpy.empty_like(ndataset)
     testPredictPlot[:, :] = numpy.nan
     testPredictPlot[len(trainPredict) + (look_back * 2) + 1:len(dataset) - 1, :] = testPredict
+
+    print trainPredictPlot.shape
     # plot baseline and predictions
     plt.plot(scaler.inverse_transform(dataset))
     plt.plot(trainPredictPlot)
