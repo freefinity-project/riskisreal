@@ -5,6 +5,16 @@ import unicodedata
 
 cleanData = []
 valDict = {}
+jsonData = {}
+# We need data in this format:
+# var data = [
+#     [
+#     '1995', [ latitude, longitude, magnitude, latitude, longitude, magnitude, ... ]
+#     ],
+#     [
+#     '1996', [ latitude, longitude, magnitude, latitude, longitude, magnitude, ... ]
+#     ]
+# ];
 
 def genCleanCSV():
     global cleanData, valDict
@@ -21,8 +31,8 @@ def genCleanCSV():
         newrow = row
         del newrow[2]
         del newrow[2]
-        valDict[newrow[1].encode('ascii','ignore')] = newrow[2:]
-        cleanData.append(newrow)
+        valDict[newrow[1].encode('ascii','ignore')] = newrow[2:56]
+        cleanData.append(newrow[0:56])
     ofile = open('Datasets/clean/cdo_emissions.csv', "wb")
     writer = csv.writer(ofile)
 
@@ -31,7 +41,7 @@ def genCleanCSV():
 
 
 def genJSON():
-    global cleanData
+    global cleanData, jsonData
     with open('Datasets/raw/countries.json') as data_file:
         data = json.load(data_file)
     print "Loaded", len(data), "countries."
@@ -43,9 +53,15 @@ def genJSON():
             country_val = valDict[country_code]
             print "For", country_code, "at", country_latlng, ":"
             print "\t", country_val
-            print "\n"
+            for i in range(len(country_val)):
+                year_val = country_val[i]
+                toAppend = [country_latlng[0], country_latlng[1], year_val]
+                jsonData[str(i)] = jsonData[str(i)].append(toAppend)
         except KeyError:
             print "Not found", country_code
+    print jsonData
+    with open('Datasets/clean/cdo_emissions.json', 'w') as outfile:
+        json.dump(jsonData, outfile)
 
 
 genCleanCSV()
