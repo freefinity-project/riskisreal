@@ -2,6 +2,7 @@ import json
 from pprint import pprint
 import csv
 import unicodedata
+import fileinput
 
 cleanData = []
 valDict = {}
@@ -40,6 +41,16 @@ def genCleanCSV():
         writer.writerow(row)
 
 
+def getBasicLatLangs():
+    with open('Datasets/raw/population909500.json') as data_file:
+        data = json.load(data_file)
+
+    allvals = data[0][1]
+    # print allvals
+    for i in range(2, len(allvals), 3):
+        allvals[i] = 0.
+    return allvals
+
 def genJSON():
     global cleanData, jsonData
     with open('Datasets/raw/countries.json') as data_file:
@@ -51,29 +62,48 @@ def genJSON():
         country_latlng = country["latlng"]
         try:
             country_val = valDict[country_code]
-            print "For", country_code, "at", country_latlng, ":"
-            print "\t", country_val
+            # print "For", country_code, "at", country_latlng, ":"
+            # print "\t", country_val
             cnt = 0
             for year_val in country_val:
-                try:
-                    toAppend = [country_latlng[0], country_latlng[1], float(year_val)/10]
-                except ValueError:
-                    toAppend = [country_latlng[0], country_latlng[1], float("0.")]
-                jsondictkey = str(cnt+1960)
-                # print "At key ", str(jsondictkey), "toAppend : ", toAppend
-                try:
-                    current_json_list_val = jsonData[jsondictkey]
-                    for val in toAppend:
-                        current_json_list_val.append(val)
-                    jsonData[jsondictkey] = current_json_list_val
-                except KeyError:
-                    jsonData[jsondictkey] = toAppend
+                if(cnt%5 == 0):
+                    try:
+                        toAppend = [country_latlng[0], country_latlng[1], float(year_val)/100]
+                    except ValueError:
+                        toAppend = [country_latlng[0], country_latlng[1], float("0.")]
+                    jsondictkey = str(cnt+1960)
+                    print jsondictkey
+                    # print "At key ", str(jsondictkey), "toAppend : ", toAppend
+                    try:
+                        current_json_list_val = jsonData[jsondictkey]
+                        for val in toAppend:
+                            current_json_list_val.append(val)
+                        jsonData[jsondictkey] = current_json_list_val
+                    except KeyError:
+                        jsonData[jsondictkey] = getBasicLatLangs()
+                        current_json_list_val = jsonData[jsondictkey]
+                        for val in toAppend:
+                            current_json_list_val.append(val)
+                        jsonData[jsondictkey] = current_json_list_val
                 cnt+=1
         except KeyError:
-            print "Not found", country_code
-    print jsonData
-    with open('Datasets/clean/cdo_emissions_2.json', 'w') as outfile:
+            # print "Not found", country_code
+            pass
+    # print jsonData
+    with open('Datasets/clean/cdo_emissions_3.json', 'w') as outfile:
         json.dump(jsonData, outfile)
+    mfile = fileinput.FileInput("Datasets/clean/cdo_emissions_3.json", inplace=True, backup='.bak')
+    for line in mfile:
+        print(line.replace(", \"", "],[\""))
+    mfile = fileinput.FileInput("Datasets/clean/cdo_emissions_3.json", inplace=True, backup='.bak')
+    for line in mfile:
+        print(line.replace("{", "[["))
+    mfile = fileinput.FileInput("Datasets/clean/cdo_emissions_3.json", inplace=True, backup='.bak')
+    for line in mfile:
+        print(line.replace("}", "]]"))
+    mfile = fileinput.FileInput("Datasets/clean/cdo_emissions_3.json", inplace=True, backup='.bak')
+    for line in mfile:
+        print(line.replace(": ", ","))
 
 # /riskisreal/webgl-globe/globe/population909500.json
 # /riskisreal/Datasets/clean/cdo_emissions.json
