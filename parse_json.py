@@ -16,6 +16,7 @@ jsonData = {}
 #     '1996', [ latitude, longitude, magnitude, latitude, longitude, magnitude, ... ]
 #     ]
 # ];
+#
 
 def genCleanCSV():
     global cleanData, valDict
