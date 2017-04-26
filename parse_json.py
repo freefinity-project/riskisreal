@@ -53,16 +53,34 @@ def genJSON():
             country_val = valDict[country_code]
             print "For", country_code, "at", country_latlng, ":"
             print "\t", country_val
-            for i in range(len(country_val)):
-                year_val = country_val[i]
-                toAppend = [country_latlng[0], country_latlng[1], year_val]
-                jsonData[str(i)] = jsonData[str(i)].append(toAppend)
+            cnt = 0
+            for year_val in country_val:
+                try:
+                    toAppend = [country_latlng[0], country_latlng[1], float(year_val)/10]
+                except ValueError:
+                    toAppend = [country_latlng[0], country_latlng[1], float("0.")]
+                jsondictkey = str(cnt+1960)
+                # print "At key ", str(jsondictkey), "toAppend : ", toAppend
+                try:
+                    current_json_list_val = jsonData[jsondictkey]
+                    for val in toAppend:
+                        current_json_list_val.append(val)
+                    jsonData[jsondictkey] = current_json_list_val
+                except KeyError:
+                    jsonData[jsondictkey] = toAppend
+                cnt+=1
         except KeyError:
             print "Not found", country_code
     print jsonData
-    with open('Datasets/clean/cdo_emissions.json', 'w') as outfile:
+    with open('Datasets/clean/cdo_emissions_2.json', 'w') as outfile:
         json.dump(jsonData, outfile)
 
+# /riskisreal/webgl-globe/globe/population909500.json
+# /riskisreal/Datasets/clean/cdo_emissions.json
+# /riskisreal/Datasets/clean/cdo_emissions.json
 
+# Replace <, "> with <],[">
+# Replace <{> in begining with <[[> and <}> in end with <]]>
+# Replace <: > with <,>
 genCleanCSV()
 genJSON()
