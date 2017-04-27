@@ -25,7 +25,7 @@ def create_dataset(dataset, look_back=1):
 
 def cleanCSV():
     global cleanData
-    with open("Datasets/API_EN.ATM.CO2E.PC_DS2_en_csv_v2/API_EN.ATM.CO2E.PC_DS2_en_csv_v2.csv", "rb") as csvfile:
+    with open("Datasets/raw/API_EN.ATM.CO2E.PC_DS2_en_csv_v2/API_EN.ATM.CO2E.PC_DS2_en_csv_v2.csv", "rb") as csvfile:
         datareader = csv.reader(csvfile)
         for i in range(5):
             next(datareader, None)
@@ -48,73 +48,75 @@ cleanCSV()
 
 for country_row in cleanData:
     country_name = country_row[0]
-    ts_vals = numpy.array(country_row[1:len(country_row)]).astype(float)
-    # print ts_vals
-    # dataset = []
-    # for i in range(0, len(ts_vals)):
-    #     dataset.append([i, ts_vals[i]])
-    #
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    dataset = scaler.fit_transform(ts_vals)
+    if country_name == "United States":
+        print country_name
+        ts_vals = numpy.array(country_row[1:len(country_row)]).astype(float)
+        # print ts_vals
+        # dataset = []
+        # for i in range(0, len(ts_vals)):
+        #     dataset.append([i, ts_vals[i]])
+        #
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        dataset = scaler.fit_transform(ts_vals)
 
-    # split into train and test
-    train_size = int(len(dataset) * 0.75)
-    test_size = len(dataset) - train_size
-    print train_size, test_size
-    train, test = dataset[0:train_size], dataset[train_size:len(dataset)]
-    print train.shape, test.shape
+        # split into train and test
+        train_size = int(len(dataset) * 0.75)
+        test_size = len(dataset) - train_size
+        print train_size, test_size
+        train, test = dataset[0:train_size], dataset[train_size:len(dataset)]
+        print train.shape, test.shape
 
-    look_back = 1
-    trainX, trainY = create_dataset(train, look_back)
-    testX, testY = create_dataset(test, look_back)
+        look_back = 1
+        trainX, trainY = create_dataset(train, look_back)
+        testX, testY = create_dataset(test, look_back)
 
-    print trainX.shape, trainY.shape, testX.shape, testY.shape
+        print trainX.shape, trainY.shape, testX.shape, testY.shape
 
-    print "\n"
-    print trainX[0]
-    print trainY[0]
+        print "\n"
+        print trainX[0]
+        print trainY[0]
 
-    trainX = numpy.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
-    testX = numpy.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
+        trainX = numpy.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
+        testX = numpy.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
 
-    model = Sequential()
-    model.add(LSTM(4, input_shape=(1, look_back)))
-    model.add(Dense(1))
-    model.compile(loss='mean_squared_error', optimizer='adam')
-    model.fit(trainX, trainY, epochs=50, batch_size=1, verbose=2)
+        model = Sequential()
+        model.add(LSTM(4, input_shape=(1, look_back)))
+        model.add(Dense(1))
+        model.compile(loss='mean_squared_error', optimizer='adam')
+        model.fit(trainX, trainY, epochs=50, batch_size=1, verbose=2)
 
-    trainPredict = model.predict(trainX)
-    testPredict = model.predict(testX)
-    # invert predictions
-    trainPredict = scaler.inverse_transform(trainPredict)
-    trainY = scaler.inverse_transform([trainY])
-    testPredict = scaler.inverse_transform(testPredict)
-    testY = scaler.inverse_transform([testY])
-    # calculate root mean squared error
-    trainScore = math.sqrt(mean_squared_error(trainY[0], trainPredict[:, 0]))
-    print('Train Score: %.2f RMSE' % (trainScore))
-    testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:, 0]))
-    print('Test Score: %.2f RMSE' % (testScore))
+        trainPredict = model.predict(trainX)
+        testPredict = model.predict(testX)
+        # invert predictions
+        trainPredict = scaler.inverse_transform(trainPredict)
+        trainY = scaler.inverse_transform([trainY])
+        testPredict = scaler.inverse_transform(testPredict)
+        testY = scaler.inverse_transform([testY])
+        # calculate root mean squared error
+        trainScore = math.sqrt(mean_squared_error(trainY[0], trainPredict[:, 0]))
+        print('Train Score: %.2f RMSE' % (trainScore))
+        testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:, 0]))
+        print('Test Score: %.2f RMSE' % (testScore))
 
-    ndataset = []
-    for i in range(0, len(dataset)):
-        ndataset.append([i, dataset[i]])
+        ndataset = []
+        for i in range(0, len(dataset)):
+            ndataset.append([i, dataset[i]])
 
-    ndataset = numpy.array(ndataset)
-    print ndataset.shape
-    # print trainPredict
-    trainPredictPlot = numpy.empty_like(ndataset)
-    trainPredictPlot[:, :] = numpy.nan
-    trainPredictPlot[look_back:len(trainPredict) + look_back, :] = trainPredict
-    # shift test predictions for plotting
-    testPredictPlot = numpy.empty_like(ndataset)
-    testPredictPlot[:, :] = numpy.nan
-    testPredictPlot[len(trainPredict) + (look_back * 2) + 1:len(dataset) - 1, :] = testPredict
+        ndataset = numpy.array(ndataset)
+        print ndataset.shape
+        # print trainPredict
+        trainPredictPlot = numpy.empty_like(ndataset)
+        trainPredictPlot[:, :] = numpy.nan
+        trainPredictPlot[look_back:len(trainPredict) + look_back, :] = trainPredict
+        # shift test predictions for plotting
+        testPredictPlot = numpy.empty_like(ndataset)
+        testPredictPlot[:, :] = numpy.nan
+        testPredictPlot[len(trainPredict) + (look_back * 2) + 1:len(dataset) - 1, :] = testPredict
 
-    print trainPredictPlot.shape
-    # plot baseline and predictions
-    plt.plot(scaler.inverse_transform(dataset))
-    plt.plot(trainPredictPlot)
-    plt.plot(testPredictPlot)
-    plt.show()
-    break
+        print trainPredictPlot.shape
+        # plot baseline and predictions
+        plt.plot(scaler.inverse_transform(dataset))
+        plt.plot(trainPredictPlot)
+        plt.plot(testPredictPlot)
+        plt.show()
+        break
