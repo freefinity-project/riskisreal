@@ -119,41 +119,89 @@
                             </div>
                         </div>
                 </div>
-
-
-
-                   <div class="col-md-4 card effect__click">
-                        <div class="card__front">
-                            <div class="form-group form_flip_card">
-                                <span>Which country has the highest carbon emissions per capita?</span>
-                                    <div class="radio">
-                                        <input type="radio" name="carbo" class="climate-radio" >
-                                        <label>Saudi Arabia</label>
-                                    </div>
-                                    <div class="radio">
-                                        <input type="radio" name="carbo" class="climate-radio" >
-                                        <label>India</label>
-                                    </div>
-                                    <div class="radio">
-                                        <input type="radio" name="carbo" class="climate-radio" >
-                                        <label>USA</label>
-                                    </div>
-
-
-                            </div>
-                        </div>
-                        <div class="card__back">
-                            <div class="card_back_svg">
-                                <span class="card_back_svg_text">The correct answer is Saudi Arabia</span>
-                                <img src="img/lstm_us.png" class="img-responsive card_back_svg_img"/>
-                            </div>
-                        </div>
-                </div>
         </div>
 
 
+
+          <div id="currentInfo" style="font-family: 'PT Sans', sans-serif; font-size:40px">
+            <span id="year1960" class="year">1960</span>
+            <span id="year1970" class="year">1970</span>
+            <span id="year1980" class="year">1980</span>
+            <span id="year1990" class="year">1990</span>
+            <span id="year1995" class="year">1995</span>
+            <span id="year2000" class="year">2000</span>
+            <span id="year2005" class="year">2005</span>
+          </div>
+        <div class="row" style="margin-bottom: 400px">
+                          <div id="container"></div>
+                  <script type="text/javascript" src="/riskisreal/webgl_globe/globe/third-party/Detector.js"></script>
+                  <script type="text/javascript" src="/riskisreal/webgl_globe/globe/third-party/three.min.js"></script>
+                  <script type="text/javascript" src="/riskisreal/webgl_globe/globe/third-party/Tween.js"></script>
+                  <script type="text/javascript" src="/riskisreal/webgl_globe/globe/globe.js"></script>
+                  <script type="text/javascript">
+
+                    if(!Detector.webgl){
+                      Detector.addGetWebGLMessage();
+                    } else {
+
+                      var years = ['1960','1970','1980','1990','1995','2000','2005'];
+                      var container = document.getElementById('container');
+                      var globe = new DAT.Globe(container);
+
+                      console.log(globe);
+                      var i, tweens = [];
+
+                      var settime = function(globe, t) {
+                        return function() {
+                          new TWEEN.Tween(globe).to({time: t/years.length},500).easing(TWEEN.Easing.Cubic.EaseOut).start();
+                          var y = document.getElementById('year'+years[t]);
+                          if (y.getAttribute('class') === 'year active') {
+                            return;
+                          }
+                          var yy = document.getElementsByClassName('year');
+                          for(i=0; i<yy.length; i++) {
+                            yy[i].setAttribute('class','year');
+                          }
+                          y.setAttribute('class', 'year active');
+                        };
+                      };
+
+                      for(var i = 0; i<years.length; i++) {
+                        var y = document.getElementById('year'+years[i]);
+                        y.addEventListener('mouseover', settime(globe,i), false);
+                      }
+
+                      var xhr;
+                      TWEEN.start();
+
+
+                      xhr = new XMLHttpRequest();
+                      xhr.open('GET', '/riskisreal/Datasets/clean/cdo_emissions_3.json', true);
+                      xhr.onreadystatechange = function(e) {
+                        if (xhr.readyState === 4) {
+                          if (xhr.status === 200) {
+                            var data = JSON.parse(xhr.responseText);
+                            window.data = data;
+                            for (i=0;i<data.length;i++) {
+                              globe.addData(data[i][1], {format: 'magnitude', name: data[i][0], animated: true});
+                            }
+                            globe.createPoints();
+                            settime(globe,0)();
+                            globe.animate();
+                            document.body.style.backgroundColor = 'white';
+                            document.body.style.backgroundImage = 'none'; // remove loading
+                          }
+                        }
+                      };
+                      xhr.send(null);
+                    }
+
+                  </script>
+
+        </div>
+
         <!-- Page Header -->
-        <div class="row">
+        <div class="row" style="padding-top: 400px">
             <div class="col-lg-12">
                 <h1 class="page-header">Page Heading
                     <small>Secondary Text</small>

@@ -145,6 +145,7 @@ DAT.Globe = function(container, opts) {
     renderer.setSize(w, h);
 
     renderer.domElement.style.position = 'absolute';
+    renderer.setClearColor( 0xffffff );
 
     container.appendChild(renderer.domElement);
 
