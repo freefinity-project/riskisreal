@@ -42,6 +42,7 @@ def genCleanCSV():
         writer.writerow(row)
 
 
+
 def getBasicLatLangs():
     with open('Datasets/raw/population909500.json') as data_file:
         data = json.load(data_file)
