@@ -41,7 +41,7 @@
 }
 
 .card__back {
-  background-color: #fff;
+  background-color: #ffe4c4;
   -webkit-transform: rotateY(-180deg);
           transform: rotateY(-180deg);
   padding-top: 20px; padding-bottom: 40px;
@@ -75,7 +75,9 @@
    margin-left:20px
 }
 
-.card_back_svg_text.{
+
+
+.card_back_svg_text{
     bottom: 0;
     display: inline-block;
     font-family: "PT Sans",sans-serif;
