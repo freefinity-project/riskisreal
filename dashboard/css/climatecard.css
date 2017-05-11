@@ -34,6 +34,7 @@
 }
 
 .card__front {
+  height:400px;
   background-color: #ffe4c4;
   position: relative;
   padding-top: 20px;
