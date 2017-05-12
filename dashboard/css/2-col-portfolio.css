@@ -26,6 +26,7 @@ footer {
 }
 
 .entry {
+
     display:inline-block;
     vertical-align:top;
     background:#13519C;
@@ -38,6 +39,7 @@ footer {
     border-radius:3px;
     min-width:200px;
     max-width:500px;
+    cursor: pointer; cursor: hand;
 }
 
 .entry img {
