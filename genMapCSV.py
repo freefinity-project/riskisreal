@@ -33,12 +33,15 @@ print country_rates
 
 max = 0
 argmax = 0
+meanv = 0
 for i in country_rates:
+    meanv += country_rates[i]
     if(country_rates[i] > max):
         max = country_rates[i]
         argmax = i
-
+print meanv/len(country_rates)
 print argmax, max
+
 # with open('Datasets/clean/cdo_map.csv', 'w') as f:  # Just use 'w' mode in 3.x
 #     f.write("country,rate_value")
 #     f.write("\n")

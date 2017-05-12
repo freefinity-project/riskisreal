@@ -317,10 +317,11 @@ $(function(){
 		
 					// create material color based on average		
 					var material = new THREE.MeshPhongMaterial({
-						color: this.getCountryColor(countries[i].data, country_rates),
-						opacity:0.5
+						color: 0xff5555 + 200*this.getCountryColor(countries[i].data, country_rates),
+						opacity:0.8
 					}); 
-							
+				    document.getElementById("colorsdd").innerHTML = document.getElementById("colorsdd").innerHTML + ' ' + this.getCountryColor(countries[i].data, country_rates);
+
 					// extrude mesh
 					var shape3d = countries[i].mesh.extrude({
 						amount: 1, 
@@ -345,7 +346,19 @@ $(function(){
 		},
 		
 		getCountryColor: function(data, country_rates) {
-
+//            if(data.iso_a3 in country_rates){
+//                var multiplier = (1+country_rates[data.iso_a3])*250/1.693241413202;
+//
+//
+//                multiplier = (1.0/366)*multiplier;
+//
+//                document.getElementById("colorsdd").innerHTML = document.getElementById("colorsdd").innerHTML + ' ' + multiplier*0xb22222;
+//                return multiplier*0xb22222;
+//
+//            } else {
+//                document.getElementById("bufaso").innerHTML = document.getElementById("bufaso").innerHTML + ' ' + data.iso_a3;
+//                return 0x333333;
+//            }
 
 //			var multiplier = country_rates[data.iso_a3]*10000;
 //
@@ -356,20 +369,51 @@ $(function(){
 //			multiplier = (1.0/366)*multiplier;
 //			console.log(multiplier*0xb22222);
 //			return multiplier*0xb22222;
-            if(data.iso_a3 in country_rates){
-                percent = (1+ country_rates[data.iso_a3])*100/1.693241413202;
-//                document.getElementById("bufaso").innerHTML = document.getElementById("bufaso").innerHTML + country_rates[data.iso_a3];
-                color = '#08a35c';
-			    var num = parseInt(color.slice(1),16), amt = Math.round(2.55 * percent), R = (num >> 16) + amt, G = (num >> 8 & 0x00FF) + amt, B = (num & 0x0000FF) + amt;
-                var finalc =  "0x" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
-                document.getElementById("colorsdd").innerHTML = document.getElementById("colorsdd").innerHTML + ' ' + finalc;
 
 
-            } else {
-                document.getElementById("bufaso").innerHTML = document.getElementById("bufaso").innerHTML + ' ' + data.iso_a3;
 
-                return 0x333;
-            }
+//            if(data.iso_a3 in country_rates){
+//                percent = ((1+ country_rates[data.iso_a3])*100/1.093241413202)*100/120;
+//                document.getElementById("bufaso").innerHTML = document.getElementById("bufaso").innerHTML + ' ' + percent;
+//                color = '#08a35c';
+//			    var num = parseInt(color.slice(1),16), amt = Math.round(2.55 * percent), R = (num >> 16) + amt, G = (num >> 8 & 0x00FF) + amt, B = (num & 0x0000FF) + amt;
+//                var finalc =  "0x" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
+//                document.getElementById("colorsdd").innerHTML = document.getElementById("colorsdd").innerHTML + ' ' + finalc;
+//
+//
+//            } else {
+//                return 0x333;
+//            }
+
+
+//            var y=d3.scale.linear().domain(-0.5,0.693241413202).range(0,120);
+              var c=d3.rgb("red");
+
+              if(data.iso_a3 in country_rates){
+                  if(country_rates[data.iso_a3] > 0.0515685735431){
+                        shade_num = parseInt((country_rates[data.iso_a3] - 0.0515685735431)*10/country_rates[data.iso_a3]);
+//                        document.getElementById("bufaso").innerHTML = document.getElementById("bufaso").innerHTML + ' ' + shade_num;
+                        var assigned_color = c.darker(shade_num).toString();
+//
+//                        assigned_color = assigned_color.substring(1);
+//                        assigned_color = '0x' + assigned_color;
+
+                        return shade_num;
+                  } else {
+                        shade_num = parseInt((0.0515685735431 - country_rates[data.iso_a3])*10/0.0515685735431);
+//                        document.getElementById("bufaso").innerHTML = document.getElementById("bufaso").innerHTML + ' ' + shade_num;
+                        var assigned_color = c.brighter(shade_num).toString();
+//
+//                        assigned_color = assigned_color.substring(1);
+//                        assigned_color = '0x' + assigned_color;
+                        return shade_num*-1;
+                  }
+              } else {
+                     return 0;
+              }
+
+
+
 
 
 		},
