@@ -74,8 +74,10 @@ text {
 <script>
 
 // Various accessors that specify the four dimensions of data to visualize.
-function x(d) { return d.lifeExpectancy; }
-function y(d) { return d.income; }
+// x = lifeExpectancy = temptop30
+// y = income = cdo
+function x(d) { return d.income; }
+function y(d) { return d.lifeExpectancy; }
 function radius(d) { return d.population; }
 function color(d) { return d.region; }
 function key(d) { return d.name; }
@@ -86,8 +88,8 @@ var margin = {top: 19.5, right: 19.5, bottom: 19.5, left: 39.5},
     height = 500 - margin.top - margin.bottom;
 
 // Various scales. These domains make assumptions of data, naturally.
-var xScale = d3.scale.linear().domain([0, 100]).range([0, width]),
-    yScale = d3.scale.linear().domain([-2, 20]).range([height, 0]),
+var xScale = d3.scale.linear().domain([-2, 40]).range([0, width]),
+    yScale = d3.scale.linear().domain([-10, 30]).range([height, 0]),
     radiusScale = d3.scale.sqrt().domain([0, 5e8]).range([0, 40]),
     colorScale = d3.scale.category10();
 
@@ -119,7 +121,7 @@ svg.append("text")
     .attr("text-anchor", "end")
     .attr("x", width)
     .attr("y", height - 6)
-    .text("Urban population (% of total)");
+    .text("Carbon Dioxide Emissions per Capita");
 
 // Add a y-axis label.
 svg.append("text")
@@ -128,7 +130,7 @@ svg.append("text")
     .attr("y", 6)
     .attr("dy", ".75em")
     .attr("transform", "rotate(-90)")
-    .text("Carbon Dioxide Emissions per Capita");
+    .text("Average Annual Temperature in Celsius");
 
 // Add the year label; the value is set on transition.
 var label = svg.append("text")
@@ -139,7 +141,7 @@ var label = svg.append("text")
     .text(1800);
 
 // Load the data.
-d3.json("mydata.json", function(nations) {
+d3.json("tempdata_time.json", function(nations) {
 
   // A bisector since many nation's data is sparsely-defined.
   var bisect = d3.bisector(function(d) { return d[0]; });
